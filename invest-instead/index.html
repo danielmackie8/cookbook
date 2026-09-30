@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Extinguisher</title>
+<meta name="description" content="Money burning a hole in your pocket? See what that purchase would be worth today if you'd invested it instead.">
+<meta name="theme-color" content="#c8102e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #c8102e;
+    --red-dark: #9e0c24;
+    --blue: #1f3f99;
+    --ink: #1a1a1a;
+    --muted: #5b5f66;
+    --paper: #ffffff;
+    --bg: #f4f1ec;
+    --line: #e4ded4;
+    --good: #15803d;
+    --bad: #c8102e;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+
+  /* Hazard strip */
+  .strip {
+    background: repeating-linear-gradient(-45deg, var(--red) 0 18px, #fff 18px 36px);
+    height: 10px;
+  }
+  .notice {
+    background: var(--red);
+    color: #fff;
+    text-align: center;
+    font: 700 12px/1 Inter, sans-serif;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    padding: 9px 16px;
+  }
+
+  /* Hero */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px 0 8px;
+    align-items: center;
+  }
+  @media (min-width: 820px) {
+    .hero { grid-template-columns: 380px minmax(0, 1fr); gap: 48px; padding: 48px 0 16px; }
+  }
+  .mug {
+    position: relative;
+    margin: 0 auto;
+    width: min(100%, 380px);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mug img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 30%;
+    /* The original is a mirrored selfie, so flip it back and the label reads properly. */
+    transform: scaleX(-1);
+    border-radius: var(--radius);
+    border: 6px solid #fff;
+    box-shadow: 0 0 0 3px var(--red), 0 18px 40px rgba(0,0,0,.18);
+  }
+  .bubble {
+    position: absolute;
+    left: -6px;
+    top: 14px;
+    max-width: 70%;
+    background: #fff;
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.3;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 3px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform .15s ease;
+  }
+  .bubble::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    bottom: -14px;
+    border: 12px solid transparent;
+    border-top-color: var(--ink);
+    border-bottom: 0;
+  }
+  .bubble.pop { transform: scale(1.06) rotate(-1deg); }
+  .tap-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font: 700 12px/1 Inter, sans-serif;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--blue);
+    padding: 7px 10px;
+    border-radius: 4px;
+  }
+  h1 {
+    font-family: "Archivo Black", Impact, sans-serif;
+    font-weight: 400;
+    font-size: clamp(44px, 9vw, 76px);
+    line-height: .95;
+    letter-spacing: -.01em;
+    color: var(--red);
+    margin: 14px 0 12px;
+    text-transform: uppercase;
+  }
+  .lede { font-size: clamp(17px, 2.2vw, 20px); margin: 0 0 18px; max-width: 34em; }
+  .lede strong { color: var(--red); }
+  .classes { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; padding: 0; list-style: none; }
+  .classes li {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 2px solid var(--ink); border-radius: 8px;
+    padding: 5px 10px 5px 5px; font-weight: 600; font-size: 14px;
+  }
+  .classes b {
+    display: grid; place-items: center; width: 24px; height: 24px;
+    background: var(--ink); color: #fff; border-radius: 4px; font-size: 13px;
+  }
+  .small-print { font-size: 13px; color: var(--muted); margin: 0; }
+
+  /* Label card (the calculator) */
+  .label {
+    background: var(--red);
+    border-radius: var(--radius);
+    padding: 6px;
+    margin: 28px 0;
+    box-shadow: 0 18px 40px rgba(158, 12, 36, .22);
+  }
+  .label-band {
+    background: var(--blue);
+    color: #fff;
+    font-family: "Archivo Black", Impact, sans-serif;
+    font-size: clamp(26px, 5vw, 38px);
+    padding: 8px 18px;
+    border-radius: 10px 10px 0 0;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  .label-band small {
+    font: 600 12px/1.2 Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; opacity: .85; text-align: right;
+  }
+  .label-body {
+    background: #fff;
+    border-radius: 0 0 10px 10px;
+    padding: 18px;
+    display: grid;
+    gap: 18px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 820px) {
+    .label-body { grid-template-columns: 1fr 1fr; align-items: end; gap: 22px 28px; padding: 24px; }
+  }
+  .step { min-width: 0; }
+  .step-head {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 8px;
+    font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .06em;
+  }
+  .step-num {
+    display: grid; place-items: center; flex: none;
+    width: 28px; height: 28px; border-radius: 6px;
+    border: 2px solid var(--red); color: var(--red); font-weight: 800;
+  }
+  .step-head span.muted { color: var(--muted); font-weight: 600; text-transform: none; letter-spacing: 0; }
+  .field {
+    display: flex; align-items: stretch;
+    border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; background: #fff;
+  }
+  .field:focus-within { outline: 3px solid rgba(31,63,153,.35); outline-offset: 1px; }
+  .field select, .field input {
+    border: 0; font: inherit; font-size: 18px; padding: 10px 12px; background: transparent; color: var(--ink); min-width: 0;
+  }
+  .field input { flex: 1; font-weight: 700; }
+  .field select { font-weight: 700; }
+  .field .cur { border-right: 2px solid var(--ink); background: #f7f5f1; padding-right: 6px; }
+  .field input:focus, .field select:focus { outline: none; }
+  .date-row { display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; }
+  .date-row .field select { width: 100%; }
+  .seg {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border: 2px solid var(--ink); border-radius: 10px; overflow: hidden;
+  }
+  .seg button {
+    font: inherit; font-size: 14px; font-weight: 700; padding: 12px 4px;
+    border: 0; border-left: 2px solid var(--ink); background: #fff; color: var(--ink); cursor: pointer;
+  }
+  .seg button:first-child { border-left: 0; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .presets button {
+    font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+    background: #f7f5f1; border: 1px solid var(--line); color: var(--ink);
+    padding: 5px 9px; border-radius: 999px;
+  }
+  .presets button:hover { border-color: var(--ink); }
+  .go {
+    font-family: "Archivo Black", Impact, sans-serif; font-size: 20px; letter-spacing: .02em;
+    color: #fff; background: var(--red); border: 0; border-radius: 12px;
+    padding: 16px 22px; cursor: pointer; width: 100%;
+    box-shadow: 0 4px 0 var(--red-dark);
+    transition: transform .06s ease, box-shadow .06s ease;
+  }
+  .go:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--red-dark); }
+  .go:disabled { opacity: .6; cursor: progress; }
+
+  /* Results */
+  .results { display: none; }
+  .results.show { display: block; }
+  .verdict {
+    background: var(--ink); color: #fff; border-radius: var(--radius);
+    padding: 22px; margin-bottom: 18px;
+  }
+  .verdict .kicker { font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; color: #ffb3bf; }
+  .verdict h2 {
+    font-family: "Archivo Black", Impact, sans-serif; font-weight: 400;
+    font-size: clamp(28px, 6vw, 48px); line-height: 1.05; margin: 8px 0 10px;
+  }
+  .verdict h2 em { font-style: normal; color: #ff5a73; }
+  .verdict p { margin: 0; color: #d9d9d9; font-size: 16px; }
+  .verdict p b { color: #fff; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin: 0 0 12px; }
+  .toolbar h3 { margin: 0; font-size: 18px; }
+  .toolbar .btns { display: flex; gap: 8px; }
+  .chip-btn {
+    font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    background: #fff; border: 2px solid var(--ink); color: var(--ink);
+    padding: 6px 12px; border-radius: 999px;
+  }
+  .chip-btn[aria-pressed="true"] { background: var(--ink); color: #fff; }
+
+  .board {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 16px;
+  }
+  @media (min-width: 820px) { .board { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .card {
+    text-align: left; font: inherit; color: inherit; cursor: pointer;
+    background: #fff; border: 2px solid var(--line); border-radius: 12px;
+    padding: 12px 12px 12px 16px; position: relative; overflow: hidden;
+    transition: opacity .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--c); }
+  .card:hover { border-color: var(--ink); }
+  .card.dim { opacity: .45; }
+  .card.on { border-color: var(--c); box-shadow: 0 0 0 2px var(--c); }
+  .card .rank { position: absolute; right: 10px; top: 10px; font-size: 12px; font-weight: 800; color: var(--muted); }
+  .card .name { font-weight: 700; font-size: 14px; display: block; padding-right: 24px; }
+  .card .val { font-family: "Archivo Black", Impact, sans-serif; font-size: clamp(20px, 4.5vw, 26px); display: block; margin: 2px 0; overflow-wrap: anywhere; }
+  .card .chg { font-size: 13px; font-weight: 700; }
+  .card .chg.up { color: var(--good); }
+  .card .chg.down { color: var(--bad); }
+  .card .note { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+  .card.na { cursor: default; }
+  .card.na .val { font-size: 16px; color: var(--muted); }
+
+  .chart-box {
+    background: #fff; border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 12px 8px 8px; height: 320px; position: relative;
+  }
+  @media (min-width: 820px) { .chart-box { height: 440px; padding: 18px 14px 10px; } }
+
+  .status { font-size: 13px; color: var(--muted); margin: 12px 0 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #aaa; display: inline-block; flex: none; }
+  .dot.live { background: #16a34a; box-shadow: 0 0 0 0 rgba(22,163,74,.6); animation: ping 2s infinite; }
+  .dot.err { background: var(--red); }
+  @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(22,163,74,.55); } 70% { box-shadow: 0 0 0 8px rgba(22,163,74,0); } 100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); } }
+
+  .keybox {
+    display: none; background: #fff8e1; border: 2px dashed #b88600; border-radius: 12px;
+    padding: 14px; margin: 0 0 18px; font-size: 14px;
+  }
+  .keybox.show { display: block; }
+  .keybox .field { margin-top: 8px; }
+  .keybox .field input { font-size: 15px; font-weight: 500; }
+  .keybox .field button { border: 0; background: var(--ink); color: #fff; font: inherit; font-weight: 700; padding: 0 16px; cursor: pointer; }
+
+  .error { color: var(--red); font-weight: 600; }
+
+  footer { padding: 36px 0 48px; font-size: 13px; color: var(--muted); }
+  footer p { margin: 0 0 6px; }
+  [hidden] { display: none !important; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="strip" aria-hidden="true"></div>
+<div class="notice">In case of spending, break glass</div>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <div class="mug" id="mug" role="button" tabindex="0" aria-label="Get more financial wisdom">
+        <img src="mate.jpg" alt="The Extinguisher, holding a fire extinguisher and judging your purchases" width="1126" height="2000">
+        <div class="bubble" id="bubble" aria-live="polite">Could've been in the S&amp;P, mate.</div>
+      </div>
+      <div class="tap-hint">Tap him for more wisdom</div>
+    </div>
+    <div>
+      <span class="eyebrow">Spend extinguisher · 1kg ETF powder</span>
+      <h1>The Extin&shy;guisher</h1>
+      <p class="lede">Money burning a hole in your pocket? <strong>He'll put it out.</strong> Tell him what you bought and when, and he'll show you what it would be worth now if you'd invested it instead.</p>
+      <ul class="classes" aria-label="Suitable for">
+        <li><b>A</b>Avocado toast</li>
+        <li><b>B</b>Big tellies</li>
+        <li><b>C</b>Cars (new)</li>
+      </ul>
+      <p class="small-print">Not suitable for rent, electrical fires or anything that brings you joy.</p>
+    </div>
+  </section>
+
+  <section class="label" aria-labelledby="calc-title">
+    <div class="label-band"><span id="calc-title">Powder</span><small>Opportunity cost<br>calculator</small></div>
+    <form class="label-body" id="form" novalidate>
+      <div class="step">
+        <div class="step-head"><span class="step-num">1</span>Pull out safety pin <span class="muted">· what did it cost?</span></div>
+        <div class="field">
+          <label class="sr" for="currency">Currency</label>
+          <select id="currency" class="cur">
+            <option value="GBP">£</option>
+            <option value="USD">$</option>
+            <option value="EUR">€</option>
+          </select>
+          <label class="sr" for="amount">Cost of item</label>
+          <input id="amount" type="number" inputmode="decimal" min="0" step="any" value="999" required>
+        </div>
+        <div class="presets" id="presets">
+          <button type="button" data-amt="999" data-freq="once">📱 iPhone</button>
+          <button type="button" data-amt="24.50" data-freq="weekly">☕ Daily coffee</button>
+          <button type="button" data-amt="12.99" data-freq="monthly">📺 Netflix</button>
+          <button type="button" data-amt="45" data-freq="monthly">🏋️ Gym</button>
+          <button type="button" data-amt="479" data-freq="once">🎮 PS5</button>
+          <button type="button" data-amt="32000" data-freq="once">🚗 New car</button>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><span class="step-num">2</span>Aim nozzle <span class="muted">· how often?</span></div>
+        <div class="seg" id="freq" role="group" aria-label="Payment frequency">
+          <button type="button" data-freq="once" aria-pressed="true">One-off</button>
+          <button type="button" data-freq="weekly" aria-pressed="false">Weekly</button>
+          <button type="button" data-freq="monthly" aria-pressed="false">Monthly</button>
+          <button type="button" data-freq="yearly" aria-pressed="false">Yearly</button>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><span class="step-num">3</span>Squeeze <span class="muted">· when did you buy it?</span></div>
+        <div class="date-row">
+          <div class="field"><label class="sr" for="month">Month</label><select id="month"></select></div>
+          <div class="field"><label class="sr" for="year">Year</label><select id="year"></select></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <button class="go" id="go" type="submit">🧯 Put it out</button>
+      </div>
+    </form>
+  </section>
+
+  <div class="keybox" id="keybox">
+    <strong>Stocks need a feed key.</strong> Bitcoin works on its own, but the stock prices come from <a href="https://twelvedata.com/pricing" target="_blank" rel="noopener">Twelve Data</a>, which needs a free API key. Paste one here and it's saved in this browser only.
+    <div class="field">
+      <label class="sr" for="keyInput">Twelve Data API key</label>
+      <input id="keyInput" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your API key">
+      <button type="button" id="keySave">Save</button>
+    </div>
+  </div>
+
+  <section class="results" id="results" aria-live="polite">
+    <div class="verdict" id="verdict"></div>
+
+    <div class="toolbar">
+      <h3>Tap one to focus it</h3>
+      <div class="btns">
+        <button type="button" class="chip-btn" id="showAll">Show all</button>
+        <button type="button" class="chip-btn" id="logBtn" aria-pressed="false">Log scale</button>
+      </div>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="chart-box"><canvas id="chart" aria-label="Value of your money over time in each investment" role="img"></canvas></div>
+  </section>
+
+  <p class="status" id="status"><span class="dot" id="dot"></span><span id="statusText">Connecting to the feed…</span></p>
+</main>
+
+<footer class="wrap">
+  <p><strong>Not financial advice.</strong> Mostly just financial bullying.</p>
+  <p>Assumes every payment was invested in that month at its monthly price. Uses split-adjusted prices, ignores dividends, fees and exchange rates (the currency picker only changes the symbol). S&amp;P 500 is tracked with the SPY fund.</p>
+  <p>Prices: Bitcoin from CryptoCompare, stocks from Twelve Data. Refreshed at most once an hour per browser.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+/* ---------- Config ---------- */
+// A free Twelve Data key (https://twelvedata.com). Anything put here is public to
+// anyone who views the page source. If left blank, visitors are asked to paste their own.
+const TWELVE_DATA_KEY = "";
+const CACHE_TTL_MS = 60 * 60 * 1000; // "live" = no older than an hour
+
+const ASSETS = [
+  { id: "BTC",   name: "Bitcoin",     color: "#f7931a", src: "crypto" },
+  { id: "SPY",   name: "S&P 500",     color: "#1f3f99", src: "td" },
+  { id: "AAPL",  name: "Apple",       color: "#7c3aed", src: "td" },
+  { id: "AMZN",  name: "Amazon",      color: "#16a34a", src: "td" },
+  { id: "GOOGL", name: "Google",      color: "#0891b2", src: "td" },
+  { id: "META",  name: "Meta",        color: "#db2777", src: "td" },
+];
+
+const QUOTES = [
+  "Could've been in the S&P, mate.",
+  "That's not a coffee. That's future Bitcoin.",
+  "I don't buy things. I buy things that go up.",
+  "Keep your powder dry.",
+  "Rent is just an ETF you'll never own.",
+  "Nice car. Shame about the opportunity cost.",
+  "Compound interest is the eighth wonder of the world. Your trainers are not.",
+  "Happiness is a lagging indicator.",
+  "Ever heard of dollar-cost averaging? Didn't think so.",
+  "Birthday present? I got you some index funds.",
+];
+
+/* ---------- Small helpers ---------- */
+const $ = (id) => document.getElementById(id);
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const monthKey = (y, m) => `${y}-${String(m + 1).padStart(2, "0")}`; // m is 0-based
+const keyLabel = (k) => `${MONTHS[+k.slice(5, 7) - 1]} ${k.slice(0, 4)}`;
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+
+let currency = "GBP";
+const fmt = (v, compact) => new Intl.NumberFormat("en-GB", {
+  style: "currency", currency,
+  notation: compact ? "compact" : "standard",
+  maximumFractionDigits: compact ? 1 : (Math.abs(v) >= 100 ? 0 : 2),
+}).format(v);
+const mult = (x) => x >= 100 ? `${Math.round(x).toLocaleString("en-GB")}×` : `${x.toFixed(x >= 10 ? 1 : 2)}×`;
+
+/* ---------- Speech bubble ---------- */
+let q = 0;
+function nextQuote() {
+  q = (q + 1) % QUOTES.length;
+  const b = $("bubble");
+  b.textContent = QUOTES[q];
+  b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
+}
+$("mug").addEventListener("click", nextQuote);
+$("mug").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nextQuote(); } });
+
+/* ---------- Form ---------- */
+const now = new Date();
+const monthSel = $("month"), yearSel = $("year");
+MONTHS.forEach((m, i) => monthSel.add(new Option(m, i)));
+for (let y = now.getFullYear(); y >= 1995; y--) yearSel.add(new Option(y, y));
+monthSel.value = now.getMonth();
+yearSel.value = now.getFullYear() - 3;
+
+let freq = "once";
+function setFreq(f) {
+  freq = f;
+  document.querySelectorAll("#freq button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.freq === f));
+}
+$("freq").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) setFreq(b.dataset.freq); });
+$("presets").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  $("amount").value = b.dataset.amt;
+  setFreq(b.dataset.freq);
+});
+$("currency").addEventListener("change", (e) => { currency = e.target.value; if (lastResult) render(lastResult); });
+
+/* ---------- Live price feed ---------- */
+// Each asset ends up as a Map of "YYYY-MM" -> close price (USD). The current
+// month's entry is the latest price, so today's value is as fresh as the feed.
+function getKey() { return TWELVE_DATA_KEY || store.get("td_key") || ""; }
+
+async function fetchBTC() {
+  const url = "https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=USD&allData=true";
+  const res = await fetch(url);
+  const json = await res.json();
+  if (json.Response !== "Success") throw new Error(json.Message || "CryptoCompare error");
+  const rows = json.Data.Data.filter((r) => r.close > 0);
+  const months = {};
+  let last = 0;
+  for (const r of rows) {  // rows are oldest-first, so the last close in each month wins
+    const d = new Date(r.time * 1000);
+    months[monthKey(d.getUTCFullYear(), d.getUTCMonth())] = r.close;
+    last = r.time * 1000;
+  }
+  return { months, asOf: last };
+}
+
+async function fetchStocks(key) {
+  const symbols = ASSETS.filter((a) => a.src === "td").map((a) => a.id).join(",");
+  const url = `https://api.twelvedata.com/time_series?symbol=${symbols}&interval=1month&outputsize=5000&apikey=${encodeURIComponent(key)}`;
+  const res = await fetch(url);
+  const json = await res.json();
+  if (json.status === "error") throw new Error(json.message || "Twelve Data error");
+  const out = {};
+  for (const a of ASSETS.filter((a) => a.src === "td")) {
+    const s = json[a.id];
+    if (!s || s.status !== "ok" || !s.values) { out[a.id] = { error: (s && s.message) || "No data" }; continue; }
+    const months = {};
+    for (const v of s.values) months[v.datetime.slice(0, 7)] = parseFloat(v.close);
+    out[a.id] = { months, asOf: Date.now() };
+  }
+  return out;
+}
+
+async function loadFeed(force) {
+  const key = getKey();
+  const cacheKey = "feed_v1:" + (key ? "k" : "nokey");
+  if (!force) {
+    try {
+      const cached = JSON.parse(store.get(cacheKey));
+      if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) return cached;
+    } catch {}
+  }
+  const feed = { fetchedAt: Date.now(), data: {}, errors: {} };
+  const jobs = [
+    fetchBTC().then((d) => { feed.data.BTC = d; }).catch((e) => { feed.errors.BTC = e.message; }),
+  ];
+  if (key) {
+    jobs.push(fetchStocks(key).then((d) => {
+      for (const [id, v] of Object.entries(d)) v.error ? (feed.errors[id] = v.error) : (feed.data[id] = v);
+    }).catch((e) => { ASSETS.forEach((a) => { if (a.src === "td") feed.errors[a.id] = e.message; }); }));
+  } else {
+    ASSETS.forEach((a) => { if (a.src === "td") feed.errors[a.id] = "No API key"; });
+  }
+  await Promise.all(jobs);
+  // Only cache a feed that actually returned everything we asked for.
+  if (Object.keys(feed.errors).length === 0) store.set(cacheKey, JSON.stringify(feed));
+  return feed;
+}
+
+let feedPromise = null;
+function feed(force) {
+  if (force || !feedPromise) {
+    feedPromise = loadFeed(force).then((f) => {
+      showStatus(f);
+      if (Object.keys(f.errors).length) feedPromise = null; // try again next time
+      return f;
+    });
+  }
+  return feedPromise;
+}
+
+function showStatus(f) {
+  const ok = Object.keys(f.data).length;
+  const errs = Object.entries(f.errors);
+  const t = new Date(f.fetchedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  $("dot").className = "dot " + (ok ? "live" : "err");
+  let msg = ok ? `Live prices · fetched ${t} · ${ok}/${ASSETS.length} assets` : "Couldn't reach the price feed.";
+  if (errs.length) msg += ` · Missing: ${errs.map(([id, e]) => `${id} (${e})`).join(", ")}`;
+  $("statusText").textContent = msg;
+  $("keybox").classList.toggle("show", !getKey());
+}
+
+$("keySave").addEventListener("click", () => {
+  const k = $("keyInput").value.trim();
+  if (!k) return;
+  store.set("td_key", k);
+  feed(true).then(() => { if (lastInputs) calculate(); });
+});
+
+/* ---------- The maths ---------- */
+function buildMonths(startKey, endKey) {
+  const out = [];
+  let y = +startKey.slice(0, 4), m = +startKey.slice(5, 7) - 1;
+  while (monthKey(y, m) <= endKey) { out.push(monthKey(y, m)); if (++m === 12) { m = 0; y++; } }
+  return out;
+}
+
+function contribution(i, amount, f) {
+  if (f === "once") return i === 0 ? amount : 0;
+  if (f === "weekly") return amount * 52 / 12;
+  if (f === "monthly") return amount;
+  if (f === "yearly") return i % 12 === 0 ? amount : 0;
+}
+
+function simulate(prices, months, amount, f) {
+  // Money that arrives before the asset existed sits as cash until it lists.
+  let units = 0, cash = 0, lastPrice = null, firstBuy = null;
+  const values = [];
+  months.forEach((k, i) => {
+    cash += contribution(i, amount, f);
+    const p = prices[k] ?? lastPrice; // carry forward over any gaps
+    if (p != null) {
+      if (cash > 0) { units += cash / p; cash = 0; if (!firstBuy) firstBuy = k; }
+      lastPrice = p;
+    }
+    values.push(lastPrice == null ? null : units * lastPrice + cash);
+  });
+  return { values, final: values[values.length - 1], firstBuy };
+}
+
+let lastInputs = null, lastResult = null;
+
+async function calculate() {
+  const amount = parseFloat($("amount").value);
+  if (!(amount > 0)) { $("amount").focus(); return; }
+  const startKey = monthKey(+yearSel.value, +monthSel.value);
+  const endKey = monthKey(now.getFullYear(), now.getMonth());
+  if (startKey > endKey) { alert("He can't invest money you haven't spent yet. Pick a date in the past."); return; }
+  lastInputs = { amount, startKey, freq };
+
+  const btn = $("go");
+  btn.disabled = true; btn.textContent = "🧯 Spraying…";
+  try {
+    const f = await feed();
+    const months = buildMonths(startKey, endKey);
+    let spentSoFar = 0;
+    const spent = months.map((_, i) => (spentSoFar += contribution(i, amount, freq)));
+
+    const rows = ASSETS.map((a) => {
+      const d = f.data[a.id];
+      if (!d) return { ...a, missing: f.errors[a.id] || "No data" };
+      const sim = simulate(d.months, months, amount, freq);
+      if (sim.final == null) return { ...a, missing: "No data yet" };
+      return { ...a, ...sim, lateStart: sim.firstBuy && sim.firstBuy > startKey ? sim.firstBuy : null };
+    });
+
+    lastResult = { rows, months, spent, totalSpent: spentSoFar, amount, freq, startKey };
+    focusId = null;
+    // If one line dwarfs the rest (usually Bitcoin), start on a log scale so the others are visible.
+    const finals = rows.filter((x) => !x.missing).map((x) => x.final).sort((a, b) => b - a);
+    setLog(finals.length > 1 && finals[0] / finals[1] > 5);
+    render(lastResult);
+    $("results").classList.add("show");
+    $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+  } finally {
+    btn.disabled = false; btn.textContent = "🧯 Put it out";
+  }
+}
+$("form").addEventListener("submit", (e) => { e.preventDefault(); calculate(); });
+
+/* ---------- Rendering ---------- */
+let focusId = null, logScale = false, chart = null;
+
+function verdictHTML(r) {
+  const ok = r.rows.filter((x) => !x.missing).sort((a, b) => b.final - a.final);
+  const what = r.freq === "once" ? `that ${fmt(r.amount)}` :
+    `${fmt(r.amount)} a ${{ weekly: "week", monthly: "month", yearly: "year" }[r.freq]}`;
+  if (!ok.length) {
+    return `<div class="kicker">Extinguisher jammed</div><h2>No prices to work with</h2><p>The feed didn't come back. Check the status line below and try again.</p>`;
+  }
+  const best = ok[0], x = best.final / r.totalSpent;
+  const heat = x < 1 ? "Rare win for you" : x < 2 ? "Mild smoke damage" : x < 5 ? "That's a proper blaze" : x < 20 ? "Full inferno" : "Call 999";
+  const headline = x < 1
+    ? `Everything lost money. <em>Enjoy your purchase.</em>`
+    : `You set <em>${fmt(best.final - r.totalSpent)}</em> on fire.`;
+  return `<div class="kicker">${heat}</div>
+    <h2>${headline}</h2>
+    <p>You spent <b>${fmt(r.totalSpent)}</b> (${what} since ${keyLabel(r.startKey)}). In <b>${best.name}</b> it would be worth <b>${fmt(best.final)}</b> today, which is <b>${mult(x)}</b> your money.${x >= 1 ? " He's not angry, just disappointed." : " He's furious."}</p>`;
+}
+
+function render(r) {
+  $("verdict").innerHTML = verdictHTML(r);
+  const any = r.rows.some((x) => !x.missing);
+  document.querySelectorAll(".toolbar, #board, .chart-box").forEach((el) => { el.hidden = !any; });
+  if (!any) return;
+
+  const sorted = [...r.rows].sort((a, b) => (b.final ?? -1) - (a.final ?? -1));
+  $("board").innerHTML = sorted.map((a, i) => {
+    if (a.missing) {
+      return `<div class="card na" style="--c:${a.color}"><span class="name">${a.name}</span><span class="val">Feed unavailable</span><span class="note">${escapeHTML(a.missing)}</span></div>`;
+    }
+    const gain = a.final - r.totalSpent, pct = gain / r.totalSpent * 100;
+    const cls = focusId ? (focusId === a.id ? "on" : "dim") : "";
+    return `<button type="button" class="card ${cls}" data-id="${a.id}" style="--c:${a.color}" aria-pressed="${focusId === a.id}">
+      <span class="rank">#${i + 1}</span>
+      <span class="name">${a.name}</span>
+      <span class="val">${fmt(a.final)}</span>
+      <span class="chg ${gain >= 0 ? "up" : "down"}">${gain >= 0 ? "▲" : "▼"} ${fmt(Math.abs(gain))} (${pct >= 0 ? "+" : ""}${Math.round(pct).toLocaleString("en-GB")}%)</span>
+      ${a.lateStart ? `<span class="note">Didn't exist yet, invested from ${keyLabel(a.lateStart)}</span>` : ""}
+    </button>`;
+  }).join("");
+
+  drawChart(r);
+}
+
+function escapeHTML(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+$("board").addEventListener("click", (e) => {
+  const c = e.target.closest("button.card"); if (!c) return;
+  focusId = focusId === c.dataset.id ? null : c.dataset.id;
+  render(lastResult);
+});
+$("showAll").addEventListener("click", () => { focusId = null; if (lastResult) render(lastResult); });
+function setLog(on) { logScale = on; $("logBtn").setAttribute("aria-pressed", on); }
+$("logBtn").addEventListener("click", () => { setLog(!logScale); if (lastResult) render(lastResult); });
+
+function drawChart(r) {
+  if (!window.Chart) {
+    $("chart").parentElement.innerHTML = `<p class="error" style="padding:16px">The chart library didn't load. The numbers above are still right.</p>`;
+    return;
+  }
+  const small = window.matchMedia("(max-width: 819px)").matches;
+  const datasets = r.rows.filter((a) => !a.missing).map((a) => {
+    const dim = focusId && focusId !== a.id;
+    return {
+      label: a.name,
+      data: a.values,
+      borderColor: dim ? a.color + "2e" : a.color,
+      backgroundColor: a.color,
+      borderWidth: focusId === a.id ? 3.5 : 2,
+      pointRadius: 0,
+      pointHoverRadius: dim ? 0 : 4,
+      tension: 0.15,
+      spanGaps: true,
+      order: focusId === a.id ? 0 : 1,
+    };
+  });
+  datasets.push({
+    label: "What you spent",
+    data: r.spent,
+    borderColor: "#8a8f98",
+    backgroundColor: "#8a8f98",
+    borderDash: [6, 5],
+    borderWidth: 2,
+    pointRadius: 0,
+    pointHoverRadius: 3,
+    order: 2,
+  });
+
+  // When one line is focused, fit the axis to it rather than to whatever's biggest.
+  let yMax;
+  if (focusId && !logScale) {
+    const f = r.rows.find((x) => x.id === focusId);
+    yMax = Math.max(...f.values.filter((v) => v != null), r.totalSpent) * 1.08;
+  }
+
+  const config = {
+    type: "line",
+    data: { labels: r.months.map(keyLabel), datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 400 },
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { position: "bottom", labels: { usePointStyle: true, pointStyle: "line", boxWidth: 18, font: { family: "Inter", size: small ? 11 : 12, weight: "600" } } },
+        tooltip: {
+          itemSort: (a, b) => b.parsed.y - a.parsed.y,
+          filter: (item) => !focusId || item.dataset.label === "What you spent" || item.dataset.label === r.rows.find((x) => x.id === focusId)?.name,
+          callbacks: { label: (c) => ` ${c.dataset.label}: ${fmt(c.parsed.y)}` },
+          bodyFont: { family: "Inter" }, titleFont: { family: "Inter" },
+        },
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxTicksLimit: small ? 4 : 8, maxRotation: 0, font: { family: "Inter", size: 11 } } },
+        y: {
+          type: logScale ? "logarithmic" : "linear",
+          max: yMax,
+          grid: { color: "#eee9e0" },
+          ticks: { maxTicksLimit: 6, callback: (v) => fmt(v, true), font: { family: "Inter", size: 11 } },
+        },
+      },
+    },
+  };
+  if (chart) chart.destroy();
+  chart = new Chart($("chart"), config);
+}
+
+/* ---------- Go ---------- */
+feed(); // warm the feed while they're filling the form in
+</script>
+</body>
+</html>
