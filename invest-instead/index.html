@@ -211,13 +211,6 @@
   }
   .seg button:first-child { border-left: 0; }
   .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
-  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .presets button {
-    font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
-    background: #f7f5f1; border: 1px solid var(--line); color: var(--ink);
-    padding: 5px 9px; border-radius: 999px;
-  }
-  .presets button:hover { border-color: var(--ink); }
   .go {
     font-family: "Archivo Black", Impact, sans-serif; font-size: 20px; letter-spacing: .02em;
     color: #fff; background: var(--red); border: 0; border-radius: 12px;
@@ -342,14 +335,6 @@
           <label class="sr" for="amount">Cost of item</label>
           <input id="amount" type="number" inputmode="decimal" min="0" step="any" value="999" required>
         </div>
-        <div class="presets" id="presets">
-          <button type="button" data-amt="999" data-freq="once">📱 iPhone</button>
-          <button type="button" data-amt="24.50" data-freq="weekly">☕ Daily coffee</button>
-          <button type="button" data-amt="12.99" data-freq="monthly">📺 Netflix</button>
-          <button type="button" data-amt="45" data-freq="monthly">🏋️ Gym</button>
-          <button type="button" data-amt="479" data-freq="once">🎮 PS5</button>
-          <button type="button" data-amt="32000" data-freq="once">🚗 New car</button>
-        </div>
       </div>
 
       <div class="step">
@@ -463,11 +448,6 @@ function setFreq(f) {
   document.querySelectorAll("#freq button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.freq === f));
 }
 $("freq").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) setFreq(b.dataset.freq); });
-$("presets").addEventListener("click", (e) => {
-  const b = e.target.closest("button"); if (!b) return;
-  $("amount").value = b.dataset.amt;
-  setFreq(b.dataset.freq);
-});
 $("currency").addEventListener("change", (e) => { currency = e.target.value; if (lastResult) render(lastResult); });
 
 /* ---------- Live price feed ---------- */
